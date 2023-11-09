@@ -114,54 +114,6 @@ async function displayTVDetails() {
   document.querySelector('#show-details').append(detailsTop, detailsBottom);
 }
 
-{
-  /* <div class="details-top">
-          <div>
-            <img
-              src="images/no-image.jpg"
-              class="card-img-top"
-              alt="Show Name"
-            />
-          </div>
-          <div>
-            <h2>Show Name</h2>
-            <p>
-              <i class="fas fa-star text-primary"></i>
-              8 / 10
-            </p>
-            <p class="text-muted">Release Date: XX/XX/XXXX</p>
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nemo
-              aut, illum nesciunt esse cum tempora ipsa animi unde repellendus
-              recusandae, quidem libero labore beatae sint nostrum inventore!
-              Inventore libero sit exercitationem non magni odio nobis dolorum
-              quae, deserunt quo unde labore consequuntur amet voluptatum vitae
-              omnis dignissimos error quasi tempora?
-            </p>
-            <h5>Genres</h5>
-            <ul class="list-group">
-              <li>Genre 1</li>
-              <li>Genre 2</li>
-              <li>Genre 3</li>
-            </ul>
-            <a href="#" target="_blank" class="btn">Visit Show Homepage</a>
-          </div>
-        </div>
-        <div class="details-bottom">
-          <h2>Show Info</h2>
-          <ul>
-            <li><span class="text-secondary">Number Of Episodes:</span> 50</li>
-            <li>
-              <span class="text-secondary">Last Episode To Air:</span> Last
-              Aired Show Episode
-            </li>
-            <li><span class="text-secondary">Status:</span> Released</li>
-          </ul>
-          <h4>Production Companies</h4>
-          <div class="list-group">Company 1, Company 2, Company 3</div>
-        </div> */
-}
-
 // Display 20 most popular movies
 async function displayPopluarMovies() {
   const { results } = await fetchAPIData('movie/popular');
@@ -235,9 +187,9 @@ async function displayPopluarMovies() {
 }
 
 // Display 20 most popular TV shows
-async function displayPopluarTV() {
+async function displayPopularTV() {
   const { results } = await fetchAPIData('tv/popular');
-  //   console.log(results);
+  console.log(results);
   results.forEach((tv) => {
     const tvEl = document.createElement('div');
     tvEl.classList.add('card');
@@ -275,34 +227,16 @@ async function displayPopluarTV() {
 
     cardTextEl.appendChild(textMutedEl);
 
-    cardBodyEl.append(cardTitleEl, cardTextEl);
+    cardBodyEl.appendChild(cardTitleEl);
+    cardBodyEl.appendChild(cardTextEl);
 
-    tvEl.append(linkEl, cardBodyEl);
+    tvEl.appendChild(linkEl);
+    tvEl.appendChild(cardBodyEl);
 
     const popularShows = document.querySelector('#popular-shows');
 
     popularShows.appendChild(tvEl);
-
-    //     <div class="card">
-    //     <a href="movie-details.html?id=1">
-    //       <img
-    //         src="images/no-image.jpg"
-    //         class="card-img-top"
-    //         alt="Movie Title"
-    //       />
-    //     </a>
-    //     <div class="card-body">
-    //       <h5 class="card-title">Movie Title</h5>
-    //       <p class="card-text">
-    //         <small class="text-muted">Release: XX/XX/XXXX</small>
-    //       </p>
-    //     </div>
-    //   </div>
-
-    //   .console.log(result.original_title);
-    // console.log(movie.backdrop_path);
-    // console.log(movie.title);
-    // console.log(movie.release_date);
+    console.log(tvEl);
   });
 }
 
@@ -355,7 +289,7 @@ function init() {
       break;
     case '/shows.html':
       console.log('Shows');
-      displayPopluarTV();
+      displayPopularTV();
       break;
     case '/movie-details.html':
       console.log('Movie-details');
