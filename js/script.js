@@ -1,6 +1,7 @@
 const global = {
   currentPage: window.location.pathname,
 };
+console.log(global);
 
 // Display Movie Details
 async function displayMovieDetails() {
