@@ -1,7 +1,8 @@
 const global = {
   currentPage: window.location.pathname,
 };
-console.log(global);
+console.log(global.currentPage);
+console.log(window.location.pathname);
 
 // Display Movie Details
 async function displayMovieDetails() {
@@ -163,34 +164,12 @@ async function displayPopluarMovies() {
     const popularMovies = document.querySelector('#popular-movies');
 
     popularMovies.appendChild(movieEl);
-
-    //     <div class="card">
-    //     <a href="movie-details.html?id=1">
-    //       <img
-    //         src="images/no-image.jpg"
-    //         class="card-img-top"
-    //         alt="Movie Title"
-    //       />
-    //     </a>
-    //     <div class="card-body">
-    //       <h5 class="card-title">Movie Title</h5>
-    //       <p class="card-text">
-    //         <small class="text-muted">Release: XX/XX/XXXX</small>
-    //       </p>
-    //     </div>
-    //   </div>
-
-    //   .console.log(result.original_title);
-    console.log(movie.backdrop_path);
-    console.log(movie.title);
-    console.log(movie.release_date);
   });
 }
 
 // Display 20 most popular TV shows
 async function displayPopularTV() {
   const { results } = await fetchAPIData('tv/popular');
-  console.log(results);
   results.forEach((tv) => {
     const tvEl = document.createElement('div');
     tvEl.classList.add('card');
@@ -237,7 +216,6 @@ async function displayPopularTV() {
     const popularShows = document.querySelector('#popular-shows');
 
     popularShows.appendChild(tvEl);
-    console.log(tvEl);
   });
 }
 
@@ -285,19 +263,16 @@ function init() {
   switch (global.currentPage) {
     case '/':
     case '/index.html':
-      console.log('Home');
       displayPopluarMovies();
       break;
+    // case '/shows':
     case '/shows.html':
-      console.log('Shows');
       displayPopularTV();
       break;
     case '/movie-details.html':
-      console.log('Movie-details');
       displayMovieDetails();
       break;
     case '/tv-details.html':
-      console.log('Tv details');
       displayTVDetails();
       break;
     case '/search.html':
@@ -308,4 +283,4 @@ function init() {
   highlightActiveLink();
 }
 
-document.addEventListener('DOMContentLoaded', init());
+document.addEventListener('DOMContentLoaded', init);
