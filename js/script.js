@@ -248,9 +248,11 @@ function hideSpinner() {
 
 // Highlight active link
 function highlightActiveLink() {
+  console.log('Hey links!');
   const links = document.querySelectorAll('.nav-link');
 
   links.forEach((link) => {
+    console.log(link.getAttribute('href'));
     if (link.getAttribute('href') === global.currentPage)
       link.classList.add('active');
   });
@@ -265,7 +267,7 @@ function init() {
     case '/index.html':
       displayPopluarMovies();
       break;
-    // case '/shows':
+    // case 'shows.html':
     case '/shows.html':
       displayPopularTV();
       break;
