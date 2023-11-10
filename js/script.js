@@ -11,6 +11,129 @@ async function displayMovieDetails() {
   const movie = await fetchAPIData(`movie/${movieId}`);
 
   console.log(movieId);
+  console.log(movie);
+
+  // Details Top
+
+  const detailsTop = document.createElement('div');
+  detailsTop.classList.add('details-top');
+
+  const imgDiv = document.createElement('div');
+
+  const img = document.createElement('img');
+  img.setAttribute(
+    'src',
+    `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+  );
+  img.classList.add('card-img-top');
+  img.setAttribute('alt', `${movie.title}`);
+
+  imgDiv.appendChild(img);
+  detailsTop.appendChild(imgDiv);
+
+  const titleDiv = document.createElement('div');
+
+  const h2 = document.createElement('h2');
+  h2.textContent = `${movie.title}`;
+
+  const ratingP = document.createElement('p');
+  ratingP.innerHTML = `<i class="fas fa-star text-primary"></i> ${Math.round(
+    movie.vote_average
+  )} / 10`;
+
+  const textMuted = document.createElement('p');
+  textMuted.textContent = `Released Date: ${movie.release_date}`;
+
+  const desc = document.createElement('p');
+  desc.textContent = `${movie.overview}`;
+
+  const genres = document.createElement('h5');
+  genres.textContent = `Genres`;
+
+  const ul = document.createElement('ul');
+  ul.classList.add('list-group');
+
+  movie.genres.forEach((genre) => {
+    const li = document.createElement('li');
+    li.textContent = `${genre.name}`;
+    ul.append(li);
+  });
+
+  const homepage = document.createElement('a');
+  homepage.setAttribute('href', '#');
+  homepage.setAttribute('target', '_blank');
+  homepage.classList.add('btn');
+  homepage.textContent = `Visit Movie Homepage`;
+
+  titleDiv.appendChild(h2);
+  titleDiv.appendChild(ratingP);
+  titleDiv.appendChild(textMuted);
+  titleDiv.appendChild(desc);
+  titleDiv.appendChild(genres);
+  titleDiv.appendChild(ul);
+  titleDiv.appendChild(homepage);
+
+  detailsTop.appendChild(titleDiv);
+
+  // Details Bottom
+
+  const detailsBottom = document.createElement('div');
+  detailsBottom.classList.add('details-bottom');
+
+  const movieInfo = document.createElement('h2');
+  movieInfo.textContent = `Movie Info`;
+
+  const infoUl = document.createElement('ul');
+
+  const li1 = document.createElement('li');
+  li1.innerHTML = `<span class="text-secondary">Budget:</span> ${movie.budget}`;
+  const li2 = document.createElement('li');
+  li2.innerHTML = `<span class="text-secondary">Revenue:</span> ${movie.revenue}`;
+  const li3 = document.createElement('li');
+  li3.innerHTML = `<span class="text-secondary">Runtime:</span> ${movie.runtime}`;
+  const li4 = document.createElement('li');
+  li4.innerHTML = `<span class="text-secondary">Status:</span> ${movie.status}`;
+
+  infoUl.append(li1, li2, li3, li4);
+
+  const prod = document.createElement('h4');
+  prod.textContent = `Production Companies`;
+
+  const compList = document.createElement('div');
+  compList.classList.add('list-group');
+
+  const arr = [];
+  movie.production_companies.forEach((comp) => {
+    arr.push(comp.name);
+    compList.textContent = arr.join(', ');
+  });
+
+  detailsBottom.appendChild(movieInfo);
+  detailsBottom.appendChild(infoUl);
+  detailsBottom.appendChild(prod);
+  detailsBottom.appendChild(compList);
+
+  const div = document.querySelector('#movie-details');
+
+  div.appendChild(detailsTop);
+  div.appendChild(detailsBottom);
+
+  {
+    /*
+ 
+<div class="details-bottom">
+<h2>Movie Info</h2>
+<ul>
+<li><span class="text-secondary">Budget:</span> $1,000,000</li>
+<li><span class="text-secondary">Revenue:</span> $2,000,000</li>
+<li><span class="text-secondary">Runtime:</span> 90 minutes</li>
+<li><span class="text-secondary">Status:</span> Released</li>
+</ul>
+<h4>Production Companies</h4>
+<div class="list-group">Company 1, Company 2, Company 3</div>
+</div>
+ */
+  }
 }
 
 // Display TV details
@@ -248,11 +371,9 @@ function hideSpinner() {
 
 // Highlight active link
 function highlightActiveLink() {
-  console.log('Hey links!');
   const links = document.querySelectorAll('.nav-link');
 
   links.forEach((link) => {
-    console.log(link.getAttribute('href'));
     if (link.getAttribute('href') === global.currentPage)
       link.classList.add('active');
   });
