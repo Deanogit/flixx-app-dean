@@ -6,6 +6,7 @@ const global = {
     type: '',
     page: 1,
     totalPages: 1,
+    totalResults: 0,
   },
   api: {
     whatsThis: 'd1d13de9cd6e9b2b547262bc432f43af',
@@ -385,7 +386,12 @@ async function search() {
   if (global.search.term !== '' && global.search.term !== null) {
     // @todo - make request and display results
     // These results needs to be destructured
-    const { results, total_pages, page } = await searchAPIData();
+    const { results, total_pages, page, total_results } = await searchAPIData();
+
+    global.search.page = page;
+    global.search.totalPages = total_pages;
+    global.search.totalResults = total_results;
+
     // check if there are results
     if (results.length === 0) {
       showAlert('No results found');
@@ -400,6 +406,11 @@ async function search() {
 }
 
 function displaySearchResults(results) {
+  // Clear previous results
+  document.querySelector('#search-results').innerHTML = '';
+  document.querySelector('#search-results-heading').innerHTML = '';
+  document.querySelector('#pagination').innerHTML = '';
+
   console.log(results);
   results.forEach((result) => {
     const card = document.createElement('div');
@@ -416,7 +427,7 @@ function displaySearchResults(results) {
     if (result.poster_path) {
       cardLinkImg.setAttribute(
         'src',
-        `https://image.tmdb.org/t/p/w500${result.poster_path}`
+        `https://image.tmdb.org/t/p/w500/${result.poster_path}`
       );
     } else {
       cardLinkImg.setAttribute('src', 'images/no-image.jpg');
@@ -444,7 +455,11 @@ function displaySearchResults(results) {
 
     const textMuted = document.createElement('small');
     textMuted.classList.add('text-muted');
-    textMuted.textContent = `Release: ${result.release_date}`;
+    textMuted.textContent = `Release: ${
+      global.search.type === 'movie'
+        ? result.release_date
+        : result.first_air_date
+    }`;
 
     cardText.appendChild(textMuted);
     cardBody.appendChild(cardTitle);
@@ -454,19 +469,69 @@ function displaySearchResults(results) {
 
     document.querySelector('#search-results').appendChild(card);
   });
+  const heading = document.createElement('h2');
+  heading.textContent = `${results.length} of ${global.search.totalResults} results for ${global.search.term}`;
+
+  document.querySelector('#search-results-heading').appendChild(heading);
+
+  displayPagination();
+}
+
+// Create & Display Pagination For Search
+function displayPagination() {
+  const div = document.createElement('div');
+  div.classList.add('pagination');
+
+  const prevBtn = document.createElement('button');
+  prevBtn.classList.add('btn', 'btn-primary');
+  prevBtn.setAttribute('id', 'prev');
+  prevBtn.textContent = 'Prev';
+
+  const nextBtn = document.createElement('button');
+  nextBtn.classList.add('btn', 'btn-primary');
+  nextBtn.setAttribute('id', 'next');
+  nextBtn.textContent = 'Next';
+
+  const counter = document.createElement('div');
+  counter.classList.add('page-counter');
+  counter.textContent = `Page ${global.search.page} of ${global.search.totalPages}`;
+
+  div.appendChild(prevBtn);
+  div.appendChild(nextBtn);
+  div.appendChild(counter);
+
+  document.querySelector('#pagination').appendChild(div);
+
+  // Disable prev button if on first page
+  if (global.search.page === 1) {
+    document.querySelector('#prev').disabled = true;
+  }
+
+  // Disable last button if on last page
+  if (global.search.page === global.search.totalPages) {
+    document.querySelector('#next').disabled = true;
+  }
+
+  // Next Page
+  document.querySelector('#next').addEventListener('click', async () => {
+    global.search.page++;
+    const { results, total_pages } = await searchAPIData();
+    displaySearchResults(results);
+  });
+
+  // Prev Page
+  document.querySelector('#prev').addEventListener('click', async () => {
+    global.search.page--;
+    const { results, total_pages } = await searchAPIData();
+    displaySearchResults(results);
+  });
 }
 
 {
-  /* <div class="card">
-          <a href="#">
-            <img src="images/no-image.jpg" class="card-img-top" alt="" />
-          </a>
-          <div class="card-body">
-            <h5 class="card-title">Movie Or Show Name</h5>
-            <p class="card-text">
-              <small class="text-muted">Release: XX/XX/XXXX</small>
-            </p>
-          </div>
+  /* <div class="pagination">
+          <button class="btn btn-primary" id="prev">Prev</button>
+          <button class="btn btn-primary" id="next">Next</button>
+          <div class="page-counter">Page 1 of 5</div>
         </div> */
 }
 
@@ -560,7 +625,7 @@ async function searchAPIData() {
   showSpinner();
 
   const response = await fetch(
-    `${API_URL}search/${global.search.type}?api_key=${WHATS_THIS}&language=en-US&query=${global.search.term}`
+    `${API_URL}search/${global.search.type}?api_key=${WHATS_THIS}&language=en-US&query=${global.search.term}&page=${global.search.page}`
   );
 
   const data = response.json();
