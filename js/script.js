@@ -1,6 +1,18 @@
 const global = {
   currentPage: window.location.pathname,
+  // setting up an object in the global scope to store the url data from the URLSearchParams method
+  search: {
+    term: '',
+    type: '',
+    page: 1,
+    totalPages: 1,
+  },
+  api: {
+    whatsThis: 'd1d13de9cd6e9b2b547262bc432f43af',
+    apiUrl: 'https://api.themoviedb.org/3/',
+  },
 };
+
 console.log(global.currentPage);
 console.log(window.location.pathname);
 
@@ -360,6 +372,104 @@ function displayBackgroundImage(type, backgroundPath) {
   }
 }
 
+// Search Movies/Shows
+async function search() {
+  // get the data from the url (this returns the url containing the search type and search value written in the url when the search button is fired and the search page is rendered)
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+
+  global.search.type = urlParams.get('type');
+  global.search.term = urlParams.get('search-term');
+
+  // Check term is not equal to empty string or null
+  if (global.search.term !== '' && global.search.term !== null) {
+    // @todo - make request and display results
+    // These results needs to be destructured
+    const { results, total_pages, page } = await searchAPIData();
+    // check if there are results
+    if (results.length === 0) {
+      showAlert('No results found');
+      return;
+    }
+    displaySearchResults(results);
+
+    document.querySelector('#search-term').value = '';
+  } else {
+    showAlert('Please enter a search term');
+  }
+}
+
+function displaySearchResults(results) {
+  console.log(results);
+  results.forEach((result) => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+
+    const cardLink = document.createElement('a');
+    cardLink.setAttribute(
+      'href',
+      `${global.search.type}-details.html?id=${result.id}`
+    );
+
+    const cardLinkImg = document.createElement('img');
+    cardLinkImg.classList.add('card-img-top');
+    if (result.poster_path) {
+      cardLinkImg.setAttribute(
+        'src',
+        `https://image.tmdb.org/t/p/w500${result.poster_path}`
+      );
+    } else {
+      cardLinkImg.setAttribute('src', 'images/no-image.jpg');
+    }
+    cardLinkImg.setAttribute(
+      'alt',
+      `${global.search.type === 'movie' ? result.title : result.name}`
+    );
+
+    cardLink.appendChild(cardLinkImg);
+    card.appendChild(cardLink);
+
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
+
+    const cardTitle = document.createElement('h5');
+    cardTitle.classList.add('card-title');
+
+    cardTitle.textContent = `${
+      global.search.type === 'movie' ? result.title : result.name
+    }`;
+
+    const cardText = document.createElement('p');
+    cardText.classList.add('card-text');
+
+    const textMuted = document.createElement('small');
+    textMuted.classList.add('text-muted');
+    textMuted.textContent = `Release: ${result.release_date}`;
+
+    cardText.appendChild(textMuted);
+    cardBody.appendChild(cardTitle);
+    cardBody.appendChild(cardText);
+
+    card.appendChild(cardBody);
+
+    document.querySelector('#search-results').appendChild(card);
+  });
+}
+
+{
+  /* <div class="card">
+          <a href="#">
+            <img src="images/no-image.jpg" class="card-img-top" alt="" />
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">Movie Or Show Name</h5>
+            <p class="card-text">
+              <small class="text-muted">Release: XX/XX/XXXX</small>
+            </p>
+          </div>
+        </div> */
+}
+
 // Display Slider Movies
 async function displaySlider() {
   const { results } = await fetchAPIData('movie/now_playing');
@@ -425,13 +535,32 @@ async function displaySlider() {
 // Fetch data from TMDB API
 async function fetchAPIData(endpoint) {
   // For production don't put the key in here, should be on a server
-  const WHATS_THIS = 'd1d13de9cd6e9b2b547262bc432f43af';
-  const API_URL = 'https://api.themoviedb.org/3/';
+  const WHATS_THIS = global.api.whatsThis;
+  const API_URL = global.api.apiUrl;
 
   showSpinner();
 
   const response = await fetch(
     `${API_URL}${endpoint}?api_key=${WHATS_THIS}&language=en-US`
+  );
+
+  const data = response.json();
+
+  hideSpinner();
+
+  return data;
+}
+
+// Make Request To Search
+async function searchAPIData() {
+  // For production don't put the key in here, should be on a server
+  const WHATS_THIS = global.api.whatsThis;
+  const API_URL = global.api.apiUrl;
+
+  showSpinner();
+
+  const response = await fetch(
+    `${API_URL}search/${global.search.type}?api_key=${WHATS_THIS}&language=en-US&query=${global.search.term}`
   );
 
   const data = response.json();
@@ -449,6 +578,16 @@ function hideSpinner() {
   document.querySelector('.spinner').classList.remove('show');
 }
 
+// Show Alert
+function showAlert(message, className = 'error') {
+  const alertEl = document.createElement('div');
+  alertEl.classList.add('alert', className);
+  alertEl.appendChild(document.createTextNode(message));
+  document.querySelector('#alert').appendChild(alertEl);
+
+  setTimeout(() => alertEl.remove(), 3000);
+}
+
 // Highlight active link
 function highlightActiveLink() {
   const links = document.querySelectorAll('.nav-link');
@@ -458,7 +597,6 @@ function highlightActiveLink() {
       link.classList.add('active');
   });
 }
-// I thought there might need to be an eventlistener to listen to the clicks, but actually its not required, if the href matches global.currentPage, then it works fine already, placed in the init, which actually has an eventListener, when the DOMContentLoaded fires!
 
 // add commas to numbers
 function addCommasToNumber(number) {
@@ -486,6 +624,7 @@ function init() {
       break;
     case '/search.html':
       console.log('Search');
+      search();
       break;
   }
 
